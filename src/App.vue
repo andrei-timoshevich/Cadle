@@ -1,7 +1,9 @@
 <template>
-  <div id="app" class="app">
-    <TechnicalIndicatorKLineChart/>
-  </div>
+  <v-app>
+    <v-main>
+      <TechnicalIndicatorKLineChart/>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
@@ -9,13 +11,14 @@ import TechnicalIndicatorKLineChart from '@/components/TechnicalIndicatorKLineCh
 
 export default {
   name: 'App',
+
   components: {
     TechnicalIndicatorKLineChart
   }
 }
 </script>
 
-<style>
+<style lang="scss">
 body {
   margin: 0;
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -33,11 +36,6 @@ p {
 }
 
 .app {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding: 15px;
 }
 
 .k-line-chart-container {
@@ -47,8 +45,6 @@ p {
   border-radius: 2px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
   background-color: #FFFFFF;
-  width: 620px;
-  height: 440px;
   padding: 16px 6px 16px 16px;
 }
 
@@ -70,6 +66,14 @@ p {
   margin-top: 10px;
   font-size: 12px;
   color: #606060;
+}
+
+.v-btn {
+  text-transform: none;
+}
+
+.v-overflow-btn.v-input .v-input__slot {
+  border: 0;
 }
 
 .k-line-chart-menu-container button {
