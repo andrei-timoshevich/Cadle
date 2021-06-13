@@ -1,77 +1,161 @@
 <template>
   <Layout title="Chart" v-bind:style="{backgroundColor: theme === 'dark' ? '#1f2126' : ''}">
-    <div
-      class="k-line-chart-menu-container">Type of chart:
-      <button
-        v-for="({ key, text }) in chartTypes"
-        :key="key"
-        v-on:click="setChartType(key)">
-        {{ text }}
-      </button>
+    <div>
+      <v-toolbar dense color="background">
+        <v-btn-toggle v-model="currentInterval"
+                      dense group @change="changeInterval">
+          <v-btn v-for="({ key, text }) in supportedInterval" :key="key" :value="key" small plain>
+            {{text}}
+          </v-btn>
+        </v-btn-toggle>
+        <v-divider
+          vertical
+        ></v-divider>
+        <v-spacer></v-spacer>
+        <v-dialog
+          v-model="dialogIndicatorOpen"
+          persistent
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              plain
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon>mdi-function-variant</v-icon>
+              &nbsp;
+              Indicator
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Индикаторы</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-container fluid>
+                  <v-combobox
+                    v-model="currentTechnicalIndicator"
+                    @change="setCandleTechnicalIndicator"
+                    :items="mainTechnicalIndicatorTypes"
+                    label="Индикатор основного графика"
+                    clearable
+                    dense
+                    solo
+                  ></v-combobox>
+                </v-container>
+                <v-container fluid>
+                  <v-combobox
+                    v-model="currentSubTechnicalIndicator"
+                    @change="setSubTechnicalIndicator"
+                    :items="subTechnicalIndicatorTypes"
+                    label="Индикатор дополнительного графика"
+                    solo
+                    clearable
+                    dense
+                  ></v-combobox>
+                </v-container>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue darken-1"
+                text
+                @click="dialogIndicatorOpen = false"
+              >
+                Close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-divider
+          vertical
+        ></v-divider>
+        <v-overflow-btn
+          v-model="currentCurrency"
+          @change="changeCurrency"
+          :items="supportedСurrency"
+          item-text="text"
+          item-value="key"
+          editable
+          hide-details
+          overflow
+        ></v-overflow-btn>
+        <v-divider
+          vertical
+        ></v-divider>
+        <v-overflow-btn
+          v-model="currentChartType"
+          @change="setChartType"
+          :items="chartTypes"
+          item-text="text"
+          item-value="key"
+          editable
+          hide-details
+          overflow
+        ></v-overflow-btn>
+        <v-divider
+          vertical
+        ></v-divider>
+        <v-spacer></v-spacer>
+        <v-btn class="ma-2" tile large icon @click="changeTheme">
+          <span v-if="theme === 'light'">
+            <v-icon>mdi-weather-night </v-icon>  Dark
+          </span>
+          <span v-else>
+            <v-icon>mdi-white-balance-sunny </v-icon>  Light
+          </span>
+        </v-btn>
+      </v-toolbar>
     </div>
-    <div
-      class="k-line-chart-menu-container">
-      Theme:
-      <button
-        v-on:click="setTheme('dark')">
-        dark
-      </button>
-      <button
-        v-on:click="setTheme('light')">
-        light
-      </button>
-    </div>
-    <div
-      class="k-line-chart-menu-container">
-      Currency:
-      <button
-        v-for="({ key, text }) in supportedСurrency"
-        :key="key"
-        v-on:click="changeCurrency(key)">
-        {{ text }}
-      </button>
-    </div>
-    <div
-      class="k-line-chart-menu-container">
-      Interval:
-      <button
-        v-for="({ key, text }) in supportedInterval"
-        :key="key"
-        v-on:click="changeInterval(key)">
-        {{ text }}
-      </button>
-    </div>
-    <div id="technical-indicator-k-line" class="k-line-chart"/>
-    <div
-      class="k-line-chart-menu-container">
-      <span style="padding-right: 10px">Индикатор основного графика</span>
-      <button
-        v-for="type in mainTechnicalIndicatorTypes"
-        :key="type"
-        v-on:click="setCandleTechnicalIndicator(type)">
-        {{ type }}
-      </button>
-      <span style="padding-right: 10px;padding-left: 12px">Индикатор дополнительного графика</span>
-      <button
-        v-for="type in subTechnicalIndicatorTypes"
-        :key="type"
-        v-on:click="setSubTechnicalIndicator(type)">
-        {{ type }}
-      </button>
-    </div>
-    <div
-      class="k-line-chart-menu-container">
-      <button
-        v-for="({ key, text }) in graphicMarks"
-        :key="key"
-        v-on:click="setGraphicMarkType(key)">
-        {{ text }}
-      </button>
-      <button
-        v-on:click="removeAllGraphicMark()">
-        Remove all
-      </button>
-    </div>
+    <v-row
+      class="fill-height"
+      no-gutters
+    >
+      <v-card>
+        <v-navigation-drawer
+          mini-variant
+          mini-variant-width="60"
+          permanent
+          color="background"
+        >
+          <v-list-item
+            v-for="({ key, text, icon }) in graphicMarks"
+            :key="key">
+            <v-tooltip right>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  @click="setGraphicMarkType(key)"
+                  v-bind="attrs"
+                  v-on="on"
+                  small
+                  icon
+                >
+                  <v-icon>{{ icon }}</v-icon>
+                </v-btn>
+              </template>
+              <span>{{ text }}</span>
+            </v-tooltip>
+          </v-list-item>
+
+          <v-divider></v-divider>
+
+
+          <v-list-item>
+            <v-btn
+              @click="removeAllGraphicMark()"
+              small
+              icon
+            >
+              <v-icon>mdi-beaker-remove</v-icon>
+            </v-btn>
+          </v-list-item>
+        </v-navigation-drawer>
+      </v-card>
+      <div id="technical-indicator-k-line" class="k-line-chart"/>
+    </v-row>
   </Layout>
 </template>
 
@@ -98,17 +182,19 @@ export default {
         {key: 'ohlc', text: 'OHLC'},
         {key: 'area', text: 'area'}
       ],
+      currentChartType: 'candle_solid',
+      dialogIndicatorOpen: false,
       theme: 'light',
       graphicMarks: [
-        {key: 'priceLine', text: 'priceLine'},
-        {key: 'priceChannelLine', text: 'priceChannelLine'},
-        {key: 'parallelStraightLine', text: 'parallelStraightLine'},
-        {key: 'fibonacciLine', text: 'fibonacciLine'},
-        {key: 'rect', text: 'rect'},
-        {key: 'circle', text: 'circle'}
+        {key: 'priceLine', text: 'priceLine', icon: 'mdi-ray-start'},
+        {key: 'priceChannelLine', text: 'priceChannelLine', icon: 'mdi-menu '},
+        {key: 'parallelStraightLine', text: 'parallelStraightLine', icon: 'mdi-tune-variant '},
+        {key: 'fibonacciLine', text: 'fibonacciLine', icon: 'mdi-format-align-justify '},
+        {key: 'rect', text: 'rect', icon: 'mdi-vector-rectangle'},
+        {key: 'circle', text: 'circle', icon: 'mdi-vector-circle'}
       ],
       currentSubTechnicalIndicator: 'VOL',
-      currentTechnicalIndicator: String,
+      currentTechnicalIndicator: 'MA',
       candleNewData: [],
       kLineData: [],
       supportedInterval: [
@@ -125,7 +211,8 @@ export default {
         {key: `EUR/BYN`, text: `EUR to BYN`},
         {key: `EUR/USD`, text: `EUR to USD`}
       ],
-      currentCurrency: `USD/BYM`,
+      currentCurrency: `USD/BYN`,
+      currency: {key: `USD/BYN`, text: `USD to BYN`},
       currentInterval: `4h`
     }
   }
@@ -142,7 +229,7 @@ export default {
   ,
   methods: {
     setCandleTechnicalIndicator: function (type) {
-      if (this.currentTechnicalIndicator === type) {
+      if (!type) {
         this.kLineChart.removeTechnicalIndicator('candle_pane')
         this.currentTechnicalIndicator = null
       } else {
@@ -152,7 +239,7 @@ export default {
     }
     ,
     setSubTechnicalIndicator: function (type) {
-      if (this.currentSubTechnicalIndicator === type) {
+      if (!type) {
         this.kLineChart.removeTechnicalIndicator(this.paneId)
         this.currentSubTechnicalIndicator = null
       } else {
@@ -195,10 +282,17 @@ export default {
       this.currentInterval = interval
     },
     changeCurrency: function (currency) {
+      console.log('currency', currency);
       this.requestData(currency, this.currentInterval)
       this.currentCurrency = currency
     }
     ,
+    changeTheme: function () {
+      const isDark = this.theme === 'dark';
+      this.$vuetify.theme.dark = !isDark;
+      const targetTheme = isDark ? 'light' : 'dark';
+      this.setTheme(targetTheme);
+    },
     mapToKLineData: function (data) {
       for (let index = 0; index < data.length; index++) {
         this.kLineData.push({
